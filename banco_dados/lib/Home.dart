@@ -48,7 +48,8 @@ class _HomeState extends State<Home> {
     //String filtro = "am";
     //String sql = "SELECT * FROM usuarios WHERE nome LIKE '%"+filtro+"%'";
     //String sql = "SELECT * FROM usuarios ORDER BY UPPER(nome)  DESC ";//ASC e DESC
-    String sql = "SELECT * FROM usuarios ORDER BY idade  DESC LIMIT 3";
+    //String sql = "SELECT * FROM usuarios ORDER BY idade  DESC LIMIT 3";
+    String sql = "SELECT * FROM usuarios";
     List usuarios = await bd.rawQuery(sql);
 
     for(var usuario in usuarios){
@@ -60,9 +61,67 @@ class _HomeState extends State<Home> {
     //print("usuarios: "+usuarios.toString());
   }
 
+  _listarUsuarioPeloId(int id) async{
+    Database bd = await _recuperarBancoDados();
+    List usuarios = await bd.query(
+      "usuarios",
+      columns: ["id","nome","idade"],
+      //where: "id = ? AND nome = ? AND idade = ?",
+      //whereArgs: [id,"Amanda Ferrari",22]
+      where: "id = ?",
+      whereArgs: [id]
+    );
+
+    for(var usuario in usuarios){
+      print("item id: "+usuario['id'].toString()+
+          " nome: "+usuario['nome']+
+          " idade: "+usuario['idade'].toString()
+      );
+    }
+  }
+
+  _excluirUsuario(int id) async{
+    Database bd = await _recuperarBancoDados();
+    int retorno = await bd.delete(
+        "usuarios",
+      where: "id = ?",
+      whereArgs: [id]
+    );
+    print("Item quantidade removida: $retorno");
+  }
+  _excluirUsuarios() async{
+    Database bd = await _recuperarBancoDados();
+    int retorno = await bd.delete(
+        "usuarios",
+        where: "nome = ? AND idade = ?",
+        whereArgs: ["Amanda Ferrari",22]
+    );
+    print("Item quantidade removida: $retorno");
+  }
+
+  _atualizarUsuario(int id) async{
+    Database bd = await _recuperarBancoDados();
+    Map<String, dynamic> dadosUsuario ={
+      "nome" : "Davi Francisco da Silva",
+      "idade" : 26
+    };
+
+    int retorno = await bd.update(
+        "usuarios",
+        dadosUsuario,
+        where: "id = ?",
+        whereArgs: [id]
+    );
+    print("Item quantidade atualizada: $retorno");
+  }
+
   @override
   Widget build(BuildContext context) {
     //_salvar();
+    //_listarUsuarioPeloId(11);
+    //_atualizarUsuario(1);
+    //_excluirUsuario(2);
+    _excluirUsuarios();
     _listarUsuarios();
     return Container();
   }
